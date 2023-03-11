@@ -1,23 +1,10 @@
+        
 import express from 'express';
-import gql from 'graphql-tag';
+import restfql from 'express-restfql';
 const app = express();
 const port = 3000;
 
-const filterResponse = (response: any, model: any, acc: any) =>{
-    for (const field of model.selectionSet.selections) {
-        acc[field.name.value] = field.selectionSet? filterResponse(response[field.name.value], field, {}) : response[field.name.value]
-    }
-    return acc
-}
-
-app.use((req, res: any, next)=>{
-    var originalJson = res.json;
-    res.json = (args: any) => {
-        const query = gql`${req.query.model}`
-        originalJson.apply(res,[filterResponse(args,query.definitions[0], {})]);
-    };
-    next();
-})
+app.use(restfql)
 
 app.get('/', (req, res) => {
   res.json({
